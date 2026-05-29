@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Laboratorio de Materiais</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Pesquisa e simulacao</p>
+            <h1>Laboratorio de Materiais</h1>
+          </div>
+          <button id="runButton" class="primary-button" type="button">
+            <span aria-hidden="true">▶</span>
+            Simular e pesquisar
+          </button>
+        </header>
+
+        <section class="layout">
+          <aside class="panel">
+            <div class="panel-heading">
+              <h2>Composicao</h2>
+              <button id="addRowButton" class="icon-button" type="button" title="Adicionar material">
+                +
+              </button>
+            </div>
+            <label class="field material-search">
+              <span>Buscar material</span>
+              <input
+                id="materialSearch"
+                type="search"
+                placeholder="Ex: selenato, SnSeO4, grafeno, PLA"
+              />
+            </label>
+            <div id="compositionRows" class="rows"></div>
+            <label class="field">
+              <span>Termos para artigos e testes</span>
+              <input
+                id="researchQuery"
+                type="text"
+                value="composite material thermal mechanical electrical test"
+              />
+            </label>
+            <p id="statusText" class="status">Pronto para simular.</p>
+          </aside>
+
+          <section class="results">
+            <div class="metrics-grid" id="metricsGrid"></div>
+
+            <section class="visual-grid">
+              <article class="visual-panel">
+                <div class="visual-heading">
+                  <div>
+                    <p class="eyebrow">Modelo visual</p>
+                    <h2>Juncao atomica</h2>
+                  </div>
+                </div>
+                <canvas id="atomicCanvas" width="720" height="360"></canvas>
+              </article>
+
+              <article class="visual-panel">
+                <div class="visual-heading">
+                  <div>
+                    <p class="eyebrow">Cristalografia</p>
+                    <h2>Rede predominante</h2>
+                  </div>
+                </div>
+                <canvas id="crystalCanvas" width="720" height="360"></canvas>
+              </article>
+            </section>
+
+            <section class="chart-panel">
+              <div class="visual-heading">
+                <div>
+                  <p class="eyebrow">Comparacao</p>
+                  <h2>Propriedades por componente</h2>
+                </div>
+              </div>
+              <canvas id="propertyChart" width="980" height="360"></canvas>
+            </section>
+
+            <section class="xrd-grid">
+              <article class="visual-panel">
+                <div class="visual-heading">
+                  <div>
+                    <p class="eyebrow">Difracao de raio X</p>
+                    <h2>Padrao XRD simulado</h2>
+                  </div>
+                </div>
+                <canvas id="xrdChart" width="980" height="360"></canvas>
+              </article>
+
+              <article class="visual-panel">
+                <div class="visual-heading">
+                  <div>
+                    <p class="eyebrow">Imagem XRD</p>
+                    <h2>Aneis de difracao</h2>
+                  </div>
+                </div>
+                <canvas id="xrdImage" width="720" height="420"></canvas>
+              </article>
+            </section>
+
+            <div class="research-head">
+              <div>
+                <p class="eyebrow">Internet</p>
+                <h2>Artigos e dados encontrados</h2>
+              </div>
+              <a id="queryLink" href="#" target="_blank" rel="noreferrer">Abrir busca</a>
+            </div>
+            <div id="articlesList" class="articles"></div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <template id="rowTemplate">
+      <div class="row">
+        <select class="material-select"></select>
+        <input class="fraction-input" type="number" min="0" step="0.01" value="0.5" />
+        <button class="remove-button" type="button" title="Remover material">×</button>
+      </div>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,3 @@
+# O app usa apenas bibliotecas padrao do Python.
+# A dependencia requests e opcional para consultar a Materials Project API.
+requests>=2.32.0
