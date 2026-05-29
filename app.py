@@ -13,6 +13,7 @@ from typing import Any
 from material_simulator import (
     LOCAL_MATERIALS,
     MaterialsProjectClient,
+    canonicalize_composition,
     local_material_key,
     simulate_composite,
 )
@@ -58,6 +59,27 @@ SEARCH_TERMS = {
     "telureto_cadmio": "cadmium telluride CdTe photovoltaic semiconductor",
     "telureto_estanho": "tin telluride SnTe topological crystalline insulator",
     "seleneto_estanho": "tin selenide SnSe orthorhombic thermoelectric",
+    "selenato_estanho": "tin selenate SnSeO4 inorganic salt crystal",
+    "seleneto_estanho_2": "tin diselenide SnSe2 layered semiconductor",
+    "sulfeto_molibdenio": "molybdenum disulfide MoS2 layered semiconductor",
+    "sulfeto_tungstenio": "tungsten disulfide WS2 layered semiconductor",
+    "nitreto_boro": "hexagonal boron nitride h-BN 2D ceramic",
+    "oxido_estanho": "tin oxide SnO2 transparent conducting oxide",
+    "oxido_zinco": "zinc oxide ZnO wurtzite semiconductor",
+    "dioxido_titanio": "titanium dioxide TiO2 rutile anatase photocatalyst",
+    "arseneto_galio": "gallium arsenide GaAs III-V semiconductor",
+    "fosfeto_indio": "indium phosphide InP III-V semiconductor",
+    "latao": "brass Cu Zn alloy",
+    "bronze": "bronze Cu Sn alloy",
+    "aco_inoxidavel_304": "304 stainless steel Fe Cr Ni alloy",
+    "inconel_718": "Inconel 718 nickel superalloy",
+    "solda_sn_pb": "SnPb solder eutectic tin lead alloy",
+    "abs": "ABS polymer acrylonitrile butadiene styrene",
+    "pla": "PLA polylactic acid polymer",
+    "pet": "PET polyethylene terephthalate polymer",
+    "peek": "PEEK polyether ether ketone polymer",
+    "ptfe": "PTFE Teflon fluoropolymer",
+    "poliimida": "polyimide high temperature polymer",
     "alumina": "alumina aluminum oxide Al2O3",
     "carbeto_silicio": "silicon carbide SiC",
 }
@@ -211,6 +233,7 @@ def normalize_doi(value: str | None) -> str | None:
 
 
 def build_research_query(composition: dict[str, float], custom_query: str = "") -> str:
+    composition, compound_message = canonicalize_composition(composition)
     material_terms = []
     for name in composition:
         key = local_material_key(name)
@@ -220,6 +243,8 @@ def build_research_query(composition: dict[str, float], custom_query: str = "") 
         else:
             material_terms.append(name)
     base = " ".join(material_terms)
+    if compound_message:
+        base = f"{base} orthorhombic layered crystal"
     if custom_query.strip():
         return f"{base} {custom_query.strip()}"
     return f"{base} composite material mechanical thermal electrical test"

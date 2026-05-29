@@ -146,6 +146,27 @@ LOCAL_MATERIALS: Dict[str, Material] = {
     "telureto_cadmio": m("Telureto de cadmio", "CdTe", "CdTe", "semicondutor", 0, 240.0, 5.85, 52, 6.2, 1.0e-2, 1.50, 1092, 155, 2.10, "zinc blende", "#6b4f63"),
     "telureto_estanho": m("Telureto de estanho", "SnTe", "SnTe", "semicondutor topologico", 0, 246.3, 6.48, 50, 8.0, 1.0e5, 0.18, 806, 155, 2.10, "sal-gema fcc", "#6f7780"),
     "seleneto_estanho": m("Seleneto de estanho", "SnSe", "SnSe", "semicondutor termoeletrico", 0, 197.67, 6.18, 38, 0.7, 1.0e3, 0.90, 861, 145, 2.25, "ortorrombica em camadas", "#5f6672"),
+    "selenato_estanho": m("Selenato de estanho", "SnSeO4", "SnSeO4", "sal inorganico", 0, 261.68, 4.20, 45, 1.2, 1.0e-8, 3.20, 520, 145, 2.40, "cristal ionico estimado", "#7f8c9a"),
+    "seleneto_estanho_2": m("Disseleneto de estanho", "SnSe2", "SnSe2", "semicondutor 2D", 0, 276.63, 5.90, 35, 1.0, 5.0e1, 1.00, 861, 150, 2.35, "CdI2 hexagonal em camadas", "#4f6678"),
+    "sulfeto_molibdenio": m("Dissulfeto de molibdenio", "MoS2", "MoS2", "semicondutor 2D", 0, 160.07, 5.06, 270, 85, 1.0e-3, 1.80, 1185, 145, 2.25, "hexagonal em camadas", "#394b59"),
+    "sulfeto_tungstenio": m("Dissulfeto de tungstenio", "WS2", "WS2", "semicondutor 2D", 0, 247.97, 7.50, 170, 32, 1.0e-3, 2.00, 1250, 150, 2.30, "hexagonal em camadas", "#4d5661"),
+    "nitreto_boro": m("Nitreto de boro hexagonal", "h-BN", "BN", "ceramico 2D", 0, 24.82, 2.10, 800, 400, 1.0e-12, 5.90, 2973, 82, 2.50, "hexagonal em camadas", "#e8eef0"),
+    "oxido_estanho": m("Oxido de estanho", "SnO2", "SnO2", "oxido semicondutor", 0, 150.71, 6.95, 250, 98, 1.0e2, 3.60, 1630, 140, 2.20, "rutilo tetragonal", "#d4dae1"),
+    "oxido_zinco": m("Oxido de zinco", "ZnO", "ZnO", "oxido semicondutor", 0, 81.38, 5.61, 140, 50, 1.0e-2, 3.30, 1975, 134, 2.00, "wurtzita", "#d6dbe0"),
+    "dioxido_titanio": m("Dioxido de titanio", "TiO2", "TiO2", "ceramico semicondutor", 0, 79.87, 4.23, 230, 8.5, 1.0e-12, 3.20, 1843, 147, 2.20, "rutilo/anatase", "#e3e6e8"),
+    "arseneto_galio": m("Arseneto de galio", "GaAs", "GaAs", "semicondutor III-V", 0, 144.64, 5.32, 85, 46, 1.0e-6, 1.42, 1238, 130, 2.00, "zinc blende", "#766f82"),
+    "fosfeto_indio": m("Fosfeto de indio", "InP", "InP", "semicondutor III-V", 0, 145.79, 4.81, 71, 68, 1.0e-5, 1.34, 1062, 140, 1.95, "zinc blende", "#7f7584"),
+    "latao": m("Latao", "Cu-Zn", "CuZn", "liga", 0, 0, 8.50, 100, 120, 1.6e7, 0, 930, 130, 1.80, "fcc/beta bcc", "#c99a4a"),
+    "bronze": m("Bronze", "Cu-Sn", "CuSn", "liga", 0, 0, 8.80, 110, 60, 7.0e6, 0, 950, 135, 1.85, "fcc/intermetalicos", "#a66b3d"),
+    "aco_inoxidavel_304": m("Aco inoxidavel 304", "Fe-Cr-Ni", "SS304", "liga", 0, 0, 8.00, 193, 16, 1.4e6, 0, 1400, 126, 1.85, "austenitica fcc", "#9aa0a3"),
+    "inconel_718": m("Inconel 718", "Ni-Cr-Fe-Nb", "IN718", "superliga", 0, 0, 8.19, 200, 11.4, 8.0e5, 0, 1336, 130, 1.90, "gamma fcc + precipitados", "#8f9290"),
+    "solda_sn_pb": m("Solda estanho-chumbo", "Sn63Pb37", "SnPb", "liga", 0, 0, 8.40, 32, 50, 7.0e6, 0, 183, 155, 2.10, "eutetica tetragonal/fcc", "#9b9da3"),
+    "abs": m("ABS", "(C8H8-C4H6-C3H3N)n", "ABS", "polimero", 0, 0, 1.05, 2.2, 0.18, 1.0e-14, 5.0, 105, 80, 2.50, "amorfa", "#d8d2c7"),
+    "pla": m("PLA", "(C3H4O2)n", "PLA", "polimero", 0, 0, 1.24, 3.5, 0.13, 1.0e-14, 5.0, 160, 80, 2.60, "semicristalina", "#e7dfcf"),
+    "pet": m("PET", "(C10H8O4)n", "PET", "polimero", 0, 0, 1.38, 2.8, 0.24, 1.0e-14, 5.0, 260, 85, 2.60, "semicristalina", "#dce8ec"),
+    "peek": m("PEEK", "(C19H12O3)n", "PEEK", "polimero engenharia", 0, 0, 1.30, 3.6, 0.25, 1.0e-14, 5.0, 343, 85, 2.60, "semicristalina", "#c8b895"),
+    "ptfe": m("PTFE", "(C2F4)n", "PTFE", "polimero fluorinado", 0, 0, 2.20, 0.5, 0.25, 1.0e-18, 5.8, 327, 90, 3.00, "semicristalina", "#f1f4f4"),
+    "poliimida": m("Poliimida", "PI", "PI", "polimero alta temperatura", 0, 0, 1.42, 2.5, 0.12, 1.0e-15, 5.2, 400, 85, 2.60, "amorfa", "#b87b43"),
     "aco": m("Aco carbono", "Fe-C", "Fe", "liga", 0, 0, 7.85, 200, 50, 6.0e6, 0, 1425, 126, 1.83, "bcc/fcc", "#747c80"),
     "vidro": m("Vidro sodocalcico", "SiO2-Na2O-CaO", "Si", "ceramico", 0, 0, 2.50, 70, 0.84, 1.0e-12, 8.0, 1500, 111, 1.90, "amorfa", "#86c9d7"),
     "alumina": m("Alumina", "Al2O3", "Al", "ceramico", 0, 0, 3.95, 300, 30, 1.0e-12, 8.8, 2072, 118, 1.61, "corindon", "#dfe6ec"),
@@ -490,15 +511,67 @@ MATERIAL_ALIASES = {
     "snse": "seleneto_estanho",
     "seleneto de estanho": "seleneto_estanho",
     "seleneto_estanho": "seleneto_estanho",
-    "selenato de estanho": "seleneto_estanho",
-    "selenato_estanho": "seleneto_estanho",
     "tin selenide": "seleneto_estanho",
+    "snseo4": "selenato_estanho",
+    "selenato de estanho": "selenato_estanho",
+    "senelato de estanho": "selenato_estanho",
+    "selenato_estanho": "selenato_estanho",
+    "tin selenate": "selenato_estanho",
+    "snse2": "seleneto_estanho_2",
+    "disseleneto de estanho": "seleneto_estanho_2",
+    "tin diselenide": "seleneto_estanho_2",
+    "mos2": "sulfeto_molibdenio",
+    "dissulfeto de molibdenio": "sulfeto_molibdenio",
+    "molybdenum disulfide": "sulfeto_molibdenio",
+    "ws2": "sulfeto_tungstenio",
+    "dissulfeto de tungstenio": "sulfeto_tungstenio",
+    "tungsten disulfide": "sulfeto_tungstenio",
+    "hbn": "nitreto_boro",
+    "h-bn": "nitreto_boro",
+    "nitreto de boro": "nitreto_boro",
+    "boron nitride": "nitreto_boro",
+    "sno2": "oxido_estanho",
+    "oxido de estanho": "oxido_estanho",
+    "zno": "oxido_zinco",
+    "oxido de zinco": "oxido_zinco",
+    "tio2": "dioxido_titanio",
+    "dioxido de titanio": "dioxido_titanio",
+    "gaas": "arseneto_galio",
+    "arseneto de galio": "arseneto_galio",
+    "inp": "fosfeto_indio",
+    "fosfeto de indio": "fosfeto_indio",
+    "brass": "latao",
+    "latão": "latao",
+    "bronze": "bronze",
+    "ss304": "aco_inoxidavel_304",
+    "aco inox": "aco_inoxidavel_304",
+    "aco inoxidavel": "aco_inoxidavel_304",
+    "stainless steel 304": "aco_inoxidavel_304",
+    "in718": "inconel_718",
+    "inconel": "inconel_718",
+    "sn63pb37": "solda_sn_pb",
+    "solda estanho chumbo": "solda_sn_pb",
+    "abs": "abs",
+    "pla": "pla",
+    "pet": "pet",
+    "peek": "peek",
+    "ptfe": "ptfe",
+    "teflon": "ptfe",
+    "poliimida": "poliimida",
+    "polyimide": "poliimida",
 }
 
 
 def local_material_key(query: str) -> str:
     key = query.strip().lower()
     return MATERIAL_ALIASES.get(key, key)
+
+
+def canonicalize_composition(
+    composition: Dict[str, float],
+) -> tuple[Dict[str, float], Optional[str]]:
+    resolved = {local_material_key(name): fraction for name, fraction in composition.items()}
+    return resolved, None
 
 
 class MaterialsProjectClient:
@@ -727,6 +800,7 @@ def simulate_composite(
     client: Optional[MaterialsProjectClient] = None,
 ) -> Dict[str, Any]:
     client = client or MaterialsProjectClient()
+    composition, _compound_message = canonicalize_composition(composition)
     fractions = normalize_fractions(composition)
     selected = [(get_material(name, client), frac) for name, frac in fractions.items()]
 
