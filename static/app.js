@@ -15,6 +15,7 @@ const researchQuery = document.querySelector("#researchQuery");
 const queryLink = document.querySelector("#queryLink");
 const atomicCanvas = document.querySelector("#atomicCanvas");
 const crystalCanvas = document.querySelector("#crystalCanvas");
+const atomicStructureCanvas = document.querySelector("#atomicStructureCanvas");
 const propertyChart = document.querySelector("#propertyChart");
 const xrdChart = document.querySelector("#xrdChart");
 const xrdImage = document.querySelector("#xrdImage");
@@ -49,6 +50,39 @@ const chartMetrics = [
   ["seebeck_uv_k", "Seebeck"],
   ["zt_300k", "ZT 300K"],
 ];
+
+const elementColors = {
+  H: "#f5f7fb",
+  C: "#2d2f33",
+  N: "#4d73c9",
+  O: "#d94b40",
+  F: "#84b66f",
+  P: "#c08a30",
+  S: "#d8bd3f",
+  Se: "#8a5a2b",
+  Te: "#7b6f9f",
+  Sn: "#aeb9bd",
+  Pb: "#6d7583",
+  Bi: "#b7a5ba",
+  Ti: "#9aa1aa",
+  Sr: "#a9b88f",
+  Ba: "#b5a36f",
+  Ca: "#c5c9b8",
+  La: "#b8c7b8",
+  Al: "#a8b7c7",
+  Mn: "#9b8f9d",
+  Fe: "#8d9496",
+  Co: "#6f86aa",
+  Ni: "#a7a08a",
+  Zn: "#9daab3",
+  Y: "#91afa9",
+  Gd: "#8aa08f",
+  Nd: "#a893c8",
+  Sm: "#d4c0aa",
+  I: "#71518e",
+  Br: "#8f4230",
+  Cs: "#a68d56",
+};
 
 function materialText(material) {
   return [
@@ -307,6 +341,248 @@ function drawCrystal(simulation) {
   ctx.fillText("Representacao simplificada da celula/rede dominante", 18, crystalCanvas.height - 16);
 }
 
+function parseFormula(formula) {
+  const counts = new Map();
+  const matches = String(formula || "").matchAll(/([A-Z][a-z]?)(\d*\.?\d*)/g);
+  for (const match of matches) {
+    const symbol = match[1];
+    const amount = match[2] ? Number(match[2]) : 1;
+    counts.set(symbol, (counts.get(symbol) || 0) + (Number.isFinite(amount) ? amount : 1));
+  }
+  return [...counts.entries()].map(([symbol, amount]) => ({ symbol, amount }));
+}
+
+function atomColor(symbol, fallback = "#8fa3ad") {
+  return elementColors[symbol] || fallback;
+}
+
+function drawAtom(ctx, x, y, radius, symbol, color) {
+  const gradient = ctx.createRadialGradient(x - radius / 3, y - radius / 3, 2, x, y, radius);
+  gradient.addColorStop(0, "#ffffff");
+  gradient.addColorStop(0.45, color);
+  gradient.addColorStop(1, "#23302f");
+
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "rgba(20, 30, 30, 0.35)";
+  ctx.stroke();
+
+  ctx.fillStyle = symbol === "C" ? "#ffffff" : "#18201f";
+  ctx.font = `700 ${Math.max(10, radius * 0.75)}px Arial`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(symbol, x, y + 1);
+}
+
+function drawBond(ctx, x1, y1, x2, y2) {
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.strokeStyle = "rgba(55, 67, 64, 0.35)";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function formulaElementsForStructure(component) {
+  const parsed = parseFormula(component?.formula || component?.symbol || "");
+  if (parsed.length) {
+    return parsed;
+  }
+  return [{ symbol: component?.symbol || "M", amount: 1 }];
+}
+
+function drawPerovskiteStructure(ctx, elements, width, height) {
+  const [a = { symbol: "A" }, b = { symbol: "B" }, x = { symbol: "O" }] = elements;
+  const cells = [
+    [170, 105], [390, 105], [610, 105],
+    [280, 270], [500, 270],
+  ];
+
+  cells.forEach(([cx, cy]) => {
+    const size = 118;
+    const corners = [
+      [cx - size / 2, cy - size / 2],
+      [cx + size / 2, cy - size / 2],
+      [cx - size / 2, cy + size / 2],
+      [cx + size / 2, cy + size / 2],
+    ];
+    const edges = [
+      [cx, cy - size / 2],
+      [cx - size / 2, cy],
+      [cx + size / 2, cy],
+      [cx, cy + size / 2],
+    ];
+
+    ctx.strokeStyle = "rgba(17, 97, 91, 0.22)";
+    ctx.strokeRect(cx - size / 2, cy - size / 2, size, size);
+    corners.forEach(([px, py]) => drawAtom(ctx, px, py, 16, a.symbol, atomColor(a.symbol, "#b5a36f")));
+    edges.forEach(([px, py]) => {
+      drawBond(ctx, cx, cy, px, py);
+      drawAtom(ctx, px, py, 13, x.symbol, atomColor(x.symbol, "#d94b40"));
+    });
+    drawAtom(ctx, cx, cy, 20, b.symbol, atomColor(b.symbol, "#9aa1aa"));
+  });
+
+  ctx.fillText("Celulas ABX3 idealizadas: A nos cantos, B no centro, X nas faces/arestas", 18, height - 18);
+}
+
+function drawHexagonalStructure(ctx, elements, width, height) {
+  const primary = elements[0] || { symbol: "C" };
+  const secondary = elements[1] || primary;
+  const points = [];
+  const dx = 48;
+  const dy = 42;
+
+  for (let row = 0; row < 6; row += 1) {
+    for (let col = 0; col < 13; col += 1) {
+      const x = 80 + col * dx + (row % 2 ? dx / 2 : 0);
+      const y = 70 + row * dy;
+      points.push({ x, y, symbol: (row + col) % 2 ? primary.symbol : secondary.symbol });
+    }
+  }
+
+  points.forEach((p, index) => {
+    for (const q of points.slice(index + 1)) {
+      const distance = Math.hypot(p.x - q.x, p.y - q.y);
+      if (distance < 58) {
+        drawBond(ctx, p.x, p.y, q.x, q.y);
+      }
+    }
+  });
+  points.forEach((p) => drawAtom(ctx, p.x, p.y, 15, p.symbol, atomColor(p.symbol, "#2d2f33")));
+  ctx.fillText("Rede em camadas/hexagonal sintetica com ligacoes no plano", 18, height - 18);
+}
+
+function drawSpinelStructure(ctx, elements, width, height) {
+  const metals = elements.filter((item) => item.symbol !== "O");
+  const oxygen = elements.find((item) => item.symbol === "O") || { symbol: "O" };
+  const metalA = metals[0] || { symbol: "M" };
+  const metalB = metals[1] || metalA;
+  const nodes = [];
+
+  for (let row = 0; row < 5; row += 1) {
+    for (let col = 0; col < 9; col += 1) {
+      const x = 110 + col * 80 + (row % 2 ? 24 : 0);
+      const y = 72 + row * 58;
+      const symbol = (row + col) % 4 === 0 ? metalA.symbol : (row + col) % 2 === 0 ? metalB.symbol : oxygen.symbol;
+      nodes.push({ x, y, symbol });
+    }
+  }
+
+  nodes.forEach((p, index) => {
+    for (const q of nodes.slice(index + 1)) {
+      const distance = Math.hypot(p.x - q.x, p.y - q.y);
+      if (distance < 90) {
+        drawBond(ctx, p.x, p.y, q.x, q.y);
+      }
+    }
+  });
+  nodes.forEach((p) => {
+    const radius = p.symbol === oxygen.symbol ? 13 : 18;
+    drawAtom(ctx, p.x, p.y, radius, p.symbol, atomColor(p.symbol));
+  });
+  ctx.fillText("Rede espinelio/ferrita aproximada: sitios metalicos e sub-rede de oxigenio", 18, height - 18);
+}
+
+function drawOrthorhombicStructure(ctx, elements, width, height) {
+  const symbols = elements.length ? elements.map((item) => item.symbol) : ["A", "B"];
+  const layers = [74, 138, 210, 284];
+
+  layers.forEach((y, layerIndex) => {
+    for (let col = 0; col < 12; col += 1) {
+      const x = 80 + col * 72 + (layerIndex % 2 ? 26 : 0);
+      const symbol = symbols[(col + layerIndex) % symbols.length];
+      if (col > 0) {
+        drawBond(ctx, x - 72, y, x, y);
+      }
+      if (layerIndex > 0 && col % 2 === 0) {
+        drawBond(ctx, x, layers[layerIndex - 1], x, y);
+      }
+      drawAtom(ctx, x, y, symbol === "O" ? 12 : 17, symbol, atomColor(symbol));
+    }
+  });
+  ctx.fillText("Camadas ortorrombicas/ionicas aproximadas com empilhamento anisotropico", 18, height - 18);
+}
+
+function drawPolymerStructure(ctx, elements, width, height) {
+  const symbols = elements.length ? elements.map((item) => item.symbol) : ["C", "H"];
+  const points = [];
+  for (let i = 0; i < 18; i += 1) {
+    points.push({
+      x: 70 + i * 48,
+      y: 210 + Math.sin(i * 0.8) * 54,
+      symbol: symbols[i % symbols.length],
+    });
+  }
+  points.forEach((p, index) => {
+    if (index > 0) {
+      const previous = points[index - 1];
+      drawBond(ctx, previous.x, previous.y, p.x, p.y);
+    }
+    drawAtom(ctx, p.x, p.y, p.symbol === "H" ? 10 : 15, p.symbol, atomColor(p.symbol));
+  });
+  ctx.fillText("Cadeia polimerica esquematica baseada na formula repetitiva", 18, height - 18);
+}
+
+function drawGenericAtomicStructure(ctx, elements, width, height) {
+  const symbols = elements.length ? elements.map((item) => item.symbol) : ["M"];
+  const nodes = [];
+  for (let row = 0; row < 5; row += 1) {
+    for (let col = 0; col < 12; col += 1) {
+      nodes.push({
+        x: 80 + col * 72 + Math.sin(row + col) * 10,
+        y: 76 + row * 58 + Math.cos(row * col + 1) * 10,
+        symbol: symbols[(row + col) % symbols.length],
+      });
+    }
+  }
+  nodes.forEach((p, index) => {
+    for (const q of nodes.slice(index + 1)) {
+      const distance = Math.hypot(p.x - q.x, p.y - q.y);
+      if (distance < 82) {
+        drawBond(ctx, p.x, p.y, q.x, q.y);
+      }
+    }
+  });
+  nodes.forEach((p) => drawAtom(ctx, p.x, p.y, 15, p.symbol, atomColor(p.symbol)));
+  ctx.fillText("Arranjo atomico aproximado a partir da formula do material", 18, height - 18);
+}
+
+function drawAtomicStructure(simulation) {
+  const ctx = clearCanvas(atomicStructureCanvas);
+  const components = simulation.componentes || [];
+  const primary = [...components].sort((a, b) => b.fraction - a.fraction)[0] || {};
+  const elements = formulaElementsForStructure(primary);
+  const structure = String(primary.crystal_structure || simulation.estrutura_predominante || "").toLowerCase();
+  const category = String(primary.category || "").toLowerCase();
+
+  ctx.fillStyle = "#1d2321";
+  ctx.font = "700 17px Arial";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(`${primary.name || "Material"} (${primary.formula || "formula"})`, 18, 28);
+  ctx.fillStyle = "#66716d";
+  ctx.font = "13px Arial";
+  ctx.fillText(`Modelo visual: ${primary.crystal_structure || simulation.estrutura_predominante || "estrutura estimada"}`, 18, 48);
+
+  if (structure.includes("perovskita")) {
+    drawPerovskiteStructure(ctx, elements, atomicStructureCanvas.width, atomicStructureCanvas.height);
+  } else if (structure.includes("espinelio") || category.includes("ferrita")) {
+    drawSpinelStructure(ctx, elements, atomicStructureCanvas.width, atomicStructureCanvas.height);
+  } else if (structure.includes("hexagonal") || structure.includes("camadas") || category.includes("2d")) {
+    drawHexagonalStructure(ctx, elements, atomicStructureCanvas.width, atomicStructureCanvas.height);
+  } else if (structure.includes("ortorrombica") || structure.includes("ionico")) {
+    drawOrthorhombicStructure(ctx, elements, atomicStructureCanvas.width, atomicStructureCanvas.height);
+  } else if (category.includes("polimero") || structure.includes("amorfa")) {
+    drawPolymerStructure(ctx, elements, atomicStructureCanvas.width, atomicStructureCanvas.height);
+  } else {
+    drawGenericAtomicStructure(ctx, elements, atomicStructureCanvas.width, atomicStructureCanvas.height);
+  }
+}
+
 function normalizedValue(value, values) {
   const positives = values.filter((item) => item > 0);
   const max = Math.max(...positives, 1);
@@ -448,6 +724,7 @@ function renderVisuals(simulation) {
   state.lastSimulation = simulation;
   drawAtomicJunction(simulation.componentes || []);
   drawCrystal(simulation);
+  drawAtomicStructure(simulation);
   drawPropertyChart(simulation.componentes || []);
   drawXrdChart(simulation.xrd);
   drawXrdImage(simulation.xrd);
