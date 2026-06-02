@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
-import urllib.error
 import urllib.parse
 import urllib.request
+import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -80,6 +81,35 @@ SEARCH_TERMS = {
     "peek": "PEEK polyether ether ketone polymer",
     "ptfe": "PTFE Teflon fluoropolymer",
     "poliimida": "polyimide high temperature polymer",
+    "titanato_estroncio": "strontium titanate SrTiO3 perovskite oxide",
+    "titanato_bario": "barium titanate BaTiO3 ferroelectric perovskite",
+    "titanato_chumbo": "lead titanate PbTiO3 ferroelectric perovskite",
+    "titanato_calcio": "calcium titanate CaTiO3 perovskite",
+    "aluminato_lantanio": "lanthanum aluminate LaAlO3 perovskite oxide",
+    "manganita_lantanio_estroncio": "La0.7Sr0.3MnO3 LSMO colossal magnetoresistance perovskite",
+    "mapbi3": "MAPbI3 methylammonium lead iodide perovskite solar cell",
+    "fapbi3": "FAPbI3 formamidinium lead iodide perovskite solar cell",
+    "cspbi3": "CsPbI3 inorganic halide perovskite",
+    "cspbbr3": "CsPbBr3 inorganic halide perovskite",
+    "magnetita": "magnetite Fe3O4 inverse spinel ferrite magnetic",
+    "maghemita": "maghemite gamma Fe2O3 magnetic ferrite",
+    "ferrita_niquel": "nickel ferrite NiFe2O4 spinel magnetic",
+    "ferrita_cobalto": "cobalt ferrite CoFe2O4 hard magnetic spinel",
+    "ferrita_manganes": "manganese ferrite MnFe2O4 spinel magnetic",
+    "ferrita_zinco": "zinc ferrite ZnFe2O4 spinel magnetic",
+    "ferrita_mnzn": "MnZn ferrite soft magnetic core",
+    "ferrita_nizn": "NiZn ferrite soft magnetic high frequency",
+    "hexaferrita_bario": "barium hexaferrite BaFe12O19 permanent magnet",
+    "hexaferrita_estroncio": "strontium hexaferrite SrFe12O19 permanent magnet",
+    "granada_ferro_itrio": "yttrium iron garnet YIG Y3Fe5O12 ferrimagnetic",
+    "granada_ferro_gadolinio": "gadolinium iron garnet GdIG Gd3Fe5O12 ferrimagnetic",
+    "smco17": "Sm2Co17 samarium cobalt rare earth permanent magnet",
+    "terfenol_d": "Terfenol-D TbDyFe magnetostrictive rare earth alloy",
+    "galfenol": "Galfenol FeGa magnetostrictive alloy",
+    "permalloy": "permalloy NiFe soft magnetic alloy",
+    "yag_cerio": "YAG Ce yttrium aluminum garnet phosphor",
+    "fosforo_europio_itrio": "Y2O3 Eu rare earth red phosphor",
+    "aluminato_estroncio_europio": "SrAl2O4 Eu Dy persistent phosphor",
     "alumina": "alumina aluminum oxide Al2O3",
     "carbeto_silicio": "silicon carbide SiC",
 }
@@ -126,16 +156,32 @@ def read_json(handler: BaseHTTPRequestHandler) -> dict[str, Any]:
     return json.loads(raw)
 
 
-def fetch_json(url: str, timeout: int = 12) -> dict[str, Any]:
+def fetch_json(
+    url: str, timeout: int = 12, headers: dict[str, str] | None = None
+) -> dict[str, Any]:
+    request_headers = {
+        "User-Agent": "MaterialResearchApp/1.0 (local prototype)",
+        "Accept": "application/json",
+    }
+    request_headers.update(headers or {})
+    request = urllib.request.Request(
+        url,
+        headers=request_headers,
+    )
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def fetch_xml(url: str, timeout: int = 12) -> ET.Element:
     request = urllib.request.Request(
         url,
         headers={
             "User-Agent": "MaterialResearchApp/1.0 (local prototype)",
-            "Accept": "application/json",
+            "Accept": "application/atom+xml, application/xml",
         },
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:
-        return json.loads(response.read().decode("utf-8"))
+        return ET.fromstring(response.read())
 
 
 def material_catalog() -> list[dict[str, Any]]:
@@ -226,10 +272,184 @@ def search_crossref(query: str, limit: int = 8) -> list[dict[str, Any]]:
     return results
 
 
+def search_semantic_scholar(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    params = urllib.parse.urlencode(
+        {
+            "query": query,
+            "limit": limit,
+            "fields": "title,year,url,venue,authors,citationCount,externalIds",
+        }
+    )
+    url = f"https://api.semanticscholar.org/graph/v1/paper/search?{params}"
+    headers = {}
+    if api_key := os.getenv("SEMANTIC_SCHOLAR_API_KEY"):
+        headers["x-api-key"] = api_key
+    data = fetch_json(url, headers=headers)
+    results = []
+
+    for item in data.get("data", []):
+        authors = [
+            author.get("name")
+            for author in item.get("authors", [])[:3]
+            if author.get("name")
+        ]
+        external_ids = item.get("externalIds") or {}
+        results.append(
+            {
+                "provider": "Semantic Scholar",
+                "title": item.get("title") or "Sem titulo",
+                "year": item.get("year"),
+                "doi": normalize_doi(external_ids.get("DOI")),
+                "url": item.get("url"),
+                "source": item.get("venue"),
+                "authors": authors,
+                "citations": item.get("citationCount", 0),
+            }
+        )
+
+    return results
+
+
+def search_europe_pmc(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    params = urllib.parse.urlencode(
+        {
+            "query": query,
+            "format": "json",
+            "pageSize": limit,
+            "resultType": "core",
+        }
+    )
+    url = f"https://www.ebi.ac.uk/europepmc/webservices/rest/search?{params}"
+    data = fetch_json(url)
+    results = []
+
+    for item in data.get("resultList", {}).get("result", []):
+        authors = []
+        for author in item.get("authorList", {}).get("author", [])[:3]:
+            name = author.get("fullName") or " ".join(
+                part for part in [author.get("firstName"), author.get("lastName")] if part
+            )
+            if name:
+                authors.append(name)
+
+        source_id = item.get("source")
+        article_id = item.get("id")
+        journal = item.get("journalInfo", {}).get("journal", {})
+        results.append(
+            {
+                "provider": "Europe PMC",
+                "title": item.get("title") or "Sem titulo",
+                "year": numeric_value(item.get("pubYear")) or None,
+                "doi": normalize_doi(item.get("doi")),
+                "url": (
+                    f"https://europepmc.org/article/{source_id}/{article_id}"
+                    if source_id and article_id
+                    else None
+                ),
+                "source": journal.get("title") or source_id,
+                "authors": authors,
+                "citations": item.get("citedByCount", 0),
+            }
+        )
+
+    return results
+
+
+def search_datacite(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    params = urllib.parse.urlencode(
+        {
+            "query": f"({query}) AND types.resourceTypeGeneral:Text",
+            "page[size]": limit,
+            "sort": "relevance",
+        }
+    )
+    url = f"https://api.datacite.org/dois?{params}"
+    data = fetch_json(url)
+    results = []
+
+    for item in data.get("data", []):
+        attributes = item.get("attributes") or {}
+        authors = [
+            creator.get("name")
+            for creator in attributes.get("creators", [])[:3]
+            if creator.get("name")
+        ]
+        titles = attributes.get("titles") or []
+        title = titles[0].get("title") if titles else None
+        doi = normalize_doi(attributes.get("doi") or item.get("id"))
+        results.append(
+            {
+                "provider": "DataCite",
+                "title": title or "Sem titulo",
+                "year": numeric_value(attributes.get("publicationYear")) or None,
+                "doi": doi,
+                "url": attributes.get("url") or (f"https://doi.org/{doi}" if doi else None),
+                "source": attributes.get("publisher"),
+                "authors": authors,
+                "citations": attributes.get("citationCount", 0),
+            }
+        )
+
+    return results
+
+
+def search_arxiv(query: str, limit: int = 8) -> list[dict[str, Any]]:
+    params = urllib.parse.urlencode(
+        {
+            "search_query": f"all:{query}",
+            "start": 0,
+            "max_results": limit,
+        }
+    )
+    url = f"https://export.arxiv.org/api/query?{params}"
+    root = fetch_xml(url, timeout=6)
+    namespace = {
+        "atom": "http://www.w3.org/2005/Atom",
+        "arxiv": "http://arxiv.org/schemas/atom",
+    }
+    results = []
+
+    for item in root.findall("atom:entry", namespace):
+        authors = [
+            author.findtext("atom:name", default="", namespaces=namespace)
+            for author in item.findall("atom:author", namespace)[:3]
+        ]
+        published = item.findtext("atom:published", default="", namespaces=namespace)
+        results.append(
+            {
+                "provider": "arXiv",
+                "title": " ".join(
+                    item.findtext("atom:title", default="Sem titulo", namespaces=namespace).split()
+                ),
+                "year": int(published[:4]) if published[:4].isdigit() else None,
+                "doi": normalize_doi(item.findtext("arxiv:doi", namespaces=namespace)),
+                "url": item.findtext("atom:id", namespaces=namespace),
+                "source": item.findtext("arxiv:journal_ref", default="arXiv", namespaces=namespace),
+                "authors": [author for author in authors if author],
+                "citations": 0,
+            }
+        )
+
+    return results
+
+
 def normalize_doi(value: str | None) -> str | None:
     if not value:
         return None
-    return value.replace("https://doi.org/", "").strip()
+    return (
+        value.replace("https://doi.org/", "")
+        .replace("http://doi.org/", "")
+        .replace("http://dx.doi.org/", "")
+        .removeprefix("doi:")
+        .strip()
+    )
+
+
+def numeric_value(value: Any) -> int:
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
 
 
 def build_research_query(composition: dict[str, float], custom_query: str = "") -> str:
@@ -250,29 +470,45 @@ def build_research_query(composition: dict[str, float], custom_query: str = "") 
     return f"{base} composite material mechanical thermal electrical test"
 
 
-def run_research_search(query: str, limit: int = 8) -> dict[str, Any]:
+def run_research_search(query: str, limit: int = 20) -> dict[str, Any]:
     errors = []
     results = []
-
-    for provider, searcher in [
+    providers = [
         ("OpenAlex", search_openalex),
         ("Crossref", search_crossref),
-    ]:
-        try:
-            results.extend(searcher(query, limit=limit))
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-            errors.append(f"{provider}: {exc}")
+        ("Semantic Scholar", search_semantic_scholar),
+        ("Europe PMC", search_europe_pmc),
+        ("DataCite", search_datacite),
+        ("arXiv", search_arxiv),
+    ]
+
+    with ThreadPoolExecutor(max_workers=len(providers)) as executor:
+        searches = {
+            executor.submit(searcher, query, min(limit, 10)): provider
+            for provider, searcher in providers
+        }
+        for search in as_completed(searches):
+            provider = searches[search]
+            try:
+                results.extend(search.result())
+            except Exception as exc:
+                errors.append(f"{provider}: {exc}")
 
     seen = set()
     unique_results = []
     for result in results:
-        key = result.get("doi") or result.get("url") or result.get("title")
+        doi = result.get("doi")
+        title = " ".join(str(result.get("title") or "").lower().split())
+        key = f"doi:{doi.lower()}" if doi else f"title:{title}"
         if key in seen:
             continue
         seen.add(key)
         unique_results.append(result)
 
-    unique_results.sort(key=lambda item: (item.get("year") or 0, item.get("citations") or 0), reverse=True)
+    unique_results.sort(
+        key=lambda item: (numeric_value(item.get("year")), numeric_value(item.get("citations"))),
+        reverse=True,
+    )
     return {"query": query, "results": unique_results[:limit], "errors": errors}
 
 

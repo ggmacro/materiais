@@ -501,6 +501,84 @@ def add_rare_earth_compounds() -> None:
 add_rare_earth_compounds()
 
 
+ADVANCED_READY_MATERIALS = [
+    ("titanato_estroncio", "Titanato de estroncio", "SrTiO3", "SrTiO3", "perovskita oxida", 0, 183.49, 5.12, 280, 12, 1.0e-8, 3.25, 2080, 170, 1.70, "perovskita cubica", "#c8d5da"),
+    ("titanato_bario", "Titanato de bario", "BaTiO3", "BaTiO3", "perovskita ferroeletrica", 0, 233.19, 6.02, 120, 6, 1.0e-10, 3.20, 1625, 180, 1.60, "perovskita tetragonal", "#d8d6c7"),
+    ("titanato_chumbo", "Titanato de chumbo", "PbTiO3", "PbTiO3", "perovskita ferroeletrica", 0, 303.06, 7.52, 90, 3, 1.0e-10, 3.40, 1285, 175, 1.80, "perovskita tetragonal", "#b7bcc5"),
+    ("titanato_calcio", "Titanato de calcio", "CaTiO3", "CaTiO3", "perovskita oxida", 0, 135.94, 4.04, 180, 6, 1.0e-12, 3.50, 1975, 165, 1.65, "perovskita ortorrombica", "#cfd6d4"),
+    ("aluminato_lantanio", "Aluminato de lantanio", "LaAlO3", "LaAlO3", "perovskita oxida", 0, 213.89, 6.52, 190, 12, 1.0e-12, 5.60, 2080, 160, 1.50, "perovskita romboedrica", "#d7d2c3"),
+    ("manganita_lantanio_estroncio", "Manganita de lantanio estroncio", "La0.7Sr0.3MnO3", "LSMO", "perovskita magnetorresistiva", 0, 0, 6.30, 150, 2.5, 1.0e5, 0.0, 1400, 160, 1.65, "perovskita romboedrica", "#5e4f5f"),
+    ("mapbi3", "Perovskita MAPbI3", "CH3NH3PbI3", "MAPbI3", "perovskita halogenada", 0, 619.98, 4.16, 18, 0.5, 1.0e-4, 1.55, 330, 170, 2.30, "perovskita tetragonal", "#56465c"),
+    ("fapbi3", "Perovskita FAPbI3", "HC(NH2)2PbI3", "FAPbI3", "perovskita halogenada", 0, 632.0, 4.10, 16, 0.5, 1.0e-4, 1.48, 330, 170, 2.30, "perovskita trigonal/cubica", "#5a465b"),
+    ("cspbi3", "Perovskita CsPbI3", "CsPbI3", "CsPbI3", "perovskita halogenada", 0, 720.82, 5.39, 20, 0.4, 1.0e-5, 1.73, 460, 175, 2.25, "perovskita ortorrombica", "#5b4c3c"),
+    ("cspbbr3", "Perovskita CsPbBr3", "CsPbBr3", "CsPbBr3", "perovskita halogenada", 0, 579.82, 4.83, 20, 0.5, 1.0e-6, 2.30, 567, 170, 2.30, "perovskita ortorrombica", "#687c42"),
+    ("magnetita", "Magnetita", "Fe3O4", "Fe3O4", "ferrita magnetica", 0, 231.53, 5.17, 180, 5.0, 2.0e4, 0.10, 1597, 126, 1.95, "espinelio inverso", "#25282b"),
+    ("maghemita", "Maghemita", "gamma-Fe2O3", "Fe2O3", "ferrita magnetica", 0, 159.69, 4.90, 160, 4.0, 1.0e-2, 2.00, 1565, 126, 2.00, "espinelio defeituoso", "#7c3f31"),
+    ("ferrita_niquel", "Ferrita de niquel", "NiFe2O4", "NiFe2O4", "ferrita magnetica", 0, 234.38, 5.37, 170, 6.0, 1.0e-3, 1.60, 1455, 128, 1.90, "espinelio inverso", "#3d4658"),
+    ("ferrita_cobalto", "Ferrita de cobalto", "CoFe2O4", "CoFe2O4", "ferrita magnetica dura", 0, 234.62, 5.30, 190, 4.5, 1.0e-4, 1.30, 1520, 128, 1.95, "espinelio inverso", "#34435e"),
+    ("ferrita_manganes", "Ferrita de manganes", "MnFe2O4", "MnFe2O4", "ferrita magnetica mole", 0, 230.63, 5.00, 150, 4.0, 1.0e-2, 1.50, 1350, 130, 1.80, "espinelio", "#514a45"),
+    ("ferrita_zinco", "Ferrita de zinco", "ZnFe2O4", "ZnFe2O4", "ferrita magnetica", 0, 241.07, 5.33, 160, 5.0, 1.0e-5, 1.90, 1500, 130, 1.85, "espinelio normal", "#4b5659"),
+    ("ferrita_mnzn", "Ferrita MnZn", "MnZnFe2O4", "MnZnFe2O4", "ferrita magnetica mole", 0, 0, 4.90, 140, 4.5, 1.0e-2, 1.20, 1300, 132, 1.80, "espinelio", "#45494b"),
+    ("ferrita_nizn", "Ferrita NiZn", "NiZnFe2O4", "NiZnFe2O4", "ferrita magnetica mole", 0, 0, 5.20, 150, 4.0, 1.0e-3, 1.40, 1350, 132, 1.85, "espinelio", "#3e4650"),
+    ("hexaferrita_bario", "Hexaferrita de bario", "BaFe12O19", "BaM", "ferrita magnetica dura", 0, 1111.46, 5.28, 180, 3.5, 1.0e-8, 1.80, 1315, 155, 1.75, "magnetoplumbita hexagonal", "#4b3838"),
+    ("hexaferrita_estroncio", "Hexaferrita de estroncio", "SrFe12O19", "SrM", "ferrita magnetica dura", 0, 1061.75, 5.10, 180, 3.5, 1.0e-8, 1.80, 1350, 150, 1.75, "magnetoplumbita hexagonal", "#4b3f38"),
+    ("granada_ferro_itrio", "Granada de ferro e itrio", "Y3Fe5O12", "YIG", "granada ferrimagnetica", 0, 737.93, 5.17, 200, 6.0, 1.0e-12, 2.85, 1560, 160, 1.75, "granada cubica", "#637067"),
+    ("granada_ferro_gadolinio", "Granada de ferro e gadolinio", "Gd3Fe5O12", "GdIG", "granada ferrimagnetica terra rara", 0, 943.0, 7.10, 190, 5.0, 1.0e-12, 2.70, 1510, 160, 1.70, "granada cubica", "#6e7569"),
+    ("smco17", "Ima samario cobalto 2:17", "Sm2Co17", "Sm2Co17", "ima de terra rara", 0, 1302.0, 8.40, 150, 11.0, 8.0e5, 0.0, 1200, 160, 1.60, "romboedrica/hexagonal", "#8f7479"),
+    ("terfenol_d", "Terfenol-D", "Tb0.3Dy0.7Fe2", "Terfenol-D", "liga magnetostritiva terra rara", 0, 0, 9.20, 70, 13.0, 1.0e6, 0.0, 1180, 160, 1.60, "Laves C15", "#687572"),
+    ("galfenol", "Galfenol", "Fe-Ga", "FeGa", "liga magnetostritiva", 0, 0, 7.75, 80, 30.0, 8.0e6, 0.0, 1500, 128, 1.85, "bcc A2/D03", "#80847d"),
+    ("permalloy", "Permalloy", "Ni80Fe20", "NiFe", "liga magnetica mole", 0, 0, 8.70, 200, 20.0, 2.0e6, 0.0, 1450, 125, 1.90, "fcc", "#7f8285"),
+    ("yag_cerio", "YAG dopado com cerio", "Y3Al5O12:Ce", "YAG:Ce", "fosforo terra rara", 0, 593.62, 4.55, 280, 10.0, 1.0e-12, 6.40, 1940, 150, 1.65, "granada cubica", "#d8cf8d"),
+    ("fosforo_europio_itrio", "Y2O3 dopado com europio", "Y2O3:Eu", "Y2O3:Eu", "fosforo terra rara", 0, 0, 5.05, 180, 12.0, 1.0e-12, 5.50, 2430, 160, 1.60, "bixbyita cubica", "#d98ea5"),
+    ("aluminato_estroncio_europio", "Aluminato de estroncio europio disprosio", "SrAl2O4:Eu,Dy", "SrAl2O4", "fosforo persistente terra rara", 0, 0, 3.60, 150, 5.0, 1.0e-12, 5.80, 1900, 160, 1.55, "monoclinica", "#b7d48a"),
+]
+
+
+def add_advanced_ready_materials() -> None:
+    for (
+        key,
+        name,
+        formula,
+        symbol,
+        category,
+        atomic_number,
+        atomic_mass_u,
+        density_g_cm3,
+        elastic_modulus_gpa,
+        thermal_conductivity_w_mk,
+        electrical_conductivity_s_m,
+        band_gap_ev,
+        melting_point_c,
+        atomic_radius_pm,
+        electronegativity,
+        crystal_structure,
+        color,
+    ) in ADVANCED_READY_MATERIALS:
+        if key in LOCAL_MATERIALS:
+            continue
+        LOCAL_MATERIALS[key] = m(
+            name=name,
+            formula=formula,
+            symbol=symbol,
+            category=category,
+            atomic_number=atomic_number,
+            atomic_mass_u=atomic_mass_u,
+            density_g_cm3=density_g_cm3,
+            elastic_modulus_gpa=elastic_modulus_gpa,
+            thermal_conductivity_w_mk=thermal_conductivity_w_mk,
+            electrical_conductivity_s_m=electrical_conductivity_s_m,
+            band_gap_ev=band_gap_ev,
+            melting_point_c=melting_point_c,
+            atomic_radius_pm=atomic_radius_pm,
+            electronegativity=electronegativity,
+            crystal_structure=crystal_structure,
+            color=color,
+        )
+
+
+add_advanced_ready_materials()
+
+
 PERIODIC_SYMBOL_ALIASES = {
     symbol.lower(): key
     for key, _name, symbol, *_rest in PERIODIC_TABLE_BASE
@@ -559,6 +637,59 @@ MATERIAL_ALIASES = {
     "teflon": "ptfe",
     "poliimida": "poliimida",
     "polyimide": "poliimida",
+    "srtio3": "titanato_estroncio",
+    "titanato de estroncio": "titanato_estroncio",
+    "batio3": "titanato_bario",
+    "titanato de bario": "titanato_bario",
+    "pbtio3": "titanato_chumbo",
+    "titanato de chumbo": "titanato_chumbo",
+    "catio3": "titanato_calcio",
+    "titanato de calcio": "titanato_calcio",
+    "laalo3": "aluminato_lantanio",
+    "aluminato de lantanio": "aluminato_lantanio",
+    "lsmo": "manganita_lantanio_estroncio",
+    "mapbi3": "mapbi3",
+    "ch3nh3pbi3": "mapbi3",
+    "fapbi3": "fapbi3",
+    "cspbi3": "cspbi3",
+    "cspbbr3": "cspbbr3",
+    "fe3o4": "magnetita",
+    "magnetita": "magnetita",
+    "gamma-fe2o3": "maghemita",
+    "maghemita": "maghemita",
+    "nife2o4": "ferrita_niquel",
+    "ferrita de niquel": "ferrita_niquel",
+    "cofe2o4": "ferrita_cobalto",
+    "ferrita de cobalto": "ferrita_cobalto",
+    "mnfe2o4": "ferrita_manganes",
+    "ferrita de manganes": "ferrita_manganes",
+    "znfe2o4": "ferrita_zinco",
+    "ferrita de zinco": "ferrita_zinco",
+    "mnzn": "ferrita_mnzn",
+    "mnznfe2o4": "ferrita_mnzn",
+    "nizn": "ferrita_nizn",
+    "niznfe2o4": "ferrita_nizn",
+    "bafe12o19": "hexaferrita_bario",
+    "bam": "hexaferrita_bario",
+    "hexaferrita de bario": "hexaferrita_bario",
+    "srfe12o19": "hexaferrita_estroncio",
+    "srm": "hexaferrita_estroncio",
+    "hexaferrita de estroncio": "hexaferrita_estroncio",
+    "yig": "granada_ferro_itrio",
+    "y3fe5o12": "granada_ferro_itrio",
+    "gdig": "granada_ferro_gadolinio",
+    "gd3fe5o12": "granada_ferro_gadolinio",
+    "sm2co17": "smco17",
+    "terfenol-d": "terfenol_d",
+    "terfenol d": "terfenol_d",
+    "fega": "galfenol",
+    "galfenol": "galfenol",
+    "nife": "permalloy",
+    "permalloy": "permalloy",
+    "yag:ce": "yag_cerio",
+    "y3al5o12:ce": "yag_cerio",
+    "y2o3:eu": "fosforo_europio_itrio",
+    "sral2o4": "aluminato_estroncio_europio",
 }
 
 
@@ -715,6 +846,14 @@ def estimate_lattice_a_angstrom(material: Material) -> float:
 
 def cubic_hkl_for_structure(structure: str) -> list[tuple[int, int, int, float]]:
     structure = structure.lower()
+    if "perovskita" in structure:
+        return [(1, 0, 0, 18), (1, 1, 0, 100), (1, 1, 1, 22), (2, 0, 0, 45), (2, 1, 0, 26), (2, 1, 1, 16), (2, 2, 0, 12)]
+    if "espinelio" in structure:
+        return [(2, 2, 0, 35), (3, 1, 1, 100), (4, 0, 0, 45), (4, 2, 2, 55), (5, 1, 1, 20), (4, 4, 0, 30), (5, 3, 3, 12)]
+    if "granada" in structure:
+        return [(4, 2, 0, 34), (4, 2, 2, 100), (4, 4, 4, 45), (6, 4, 0, 28), (6, 4, 2, 22), (8, 4, 0, 14)]
+    if "magnetoplumbita" in structure or "hexaferrita" in structure:
+        return [(1, 0, 7, 22), (1, 1, 4, 55), (2, 0, 3, 100), (2, 0, 5, 45), (2, 1, 7, 30), (2, 2, 0, 18)]
     if "fcc" in structure:
         return [(1, 1, 1, 100), (2, 0, 0, 54), (2, 2, 0, 32), (3, 1, 1, 28), (2, 2, 2, 14), (4, 0, 0, 10)]
     if "bcc" in structure:
